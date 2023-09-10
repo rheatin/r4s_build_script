@@ -1,7 +1,7 @@
-From 822c40fb5d820088521931dba6436d4a4f57e143 Mon Sep 17 00:00:00 2001
+From 7947c5068bf452016f862bd017a438433a257141 Mon Sep 17 00:00:00 2001
 From: Jianfeng Wang <jfwang@google.com>
 Date: Tue, 16 Jun 2020 17:41:19 +0000
-Subject: [PATCH 13/22] net-tcp_bbr: v2: inform CC module of losses repaired by
+Subject: [PATCH 13/20] net-tcp_bbr: v2: inform CC module of losses repaired by
  TLP probe
 
 Before this commit, when there is a packet loss that creates a sequence
@@ -23,8 +23,6 @@ Signed-off-by: Alexandre Frade <kernel@xanmod.org>
  net/ipv4/tcp_input.c | 1 +
  2 files changed, 2 insertions(+)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 76c5eb9ff..4cd5d49b5 100644
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
 @@ -1015,6 +1015,7 @@ enum tcp_ca_event {
@@ -35,11 +33,9 @@ index 76c5eb9ff..4cd5d49b5 100644
  };
  
  /* Information about inbound ACK, passed to cong_ops->in_ack_event() */
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 519b62e9b..04bfbed56 100644
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
-@@ -3720,6 +3720,7 @@ static void tcp_process_tlp_ack(struct sock *sk, u32 ack, int flag)
+@@ -3720,6 +3720,7 @@ static void tcp_process_tlp_ack(struct s
  		/* ACK advances: there was a loss, so reduce cwnd. Reset
  		 * tlp_high_seq in tcp_init_cwnd_reduction()
  		 */
@@ -47,6 +43,3 @@ index 519b62e9b..04bfbed56 100644
  		tcp_init_cwnd_reduction(sk);
  		tcp_set_ca_state(sk, TCP_CA_CWR);
  		tcp_end_cwnd_reduction(sk);
--- 
-2.39.3
-

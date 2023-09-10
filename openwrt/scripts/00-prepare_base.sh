@@ -1,9 +1,14 @@
 #!/bin/bash -e
 
-# Rockchip - rkbin & u-boot 2023.07
+# Rockchip - rkbin & u-boot
 rm -rf package/boot/uboot-rockchip package/boot/arm-trusted-firmware-rockchip
-git clone https://github.com/sbwml/package_boot_uboot-rockchip package/boot/uboot-rockchip
-git clone https://github.com/sbwml/arm-trusted-firmware-rockchip package/boot/arm-trusted-firmware-rockchip
+if [ "$platform" = "rk3568" ]; then
+    git clone https://github.com/sbwml/package_boot_uboot-rockchip package/boot/uboot-rockchip
+    git clone https://github.com/sbwml/arm-trusted-firmware-rockchip package/boot/arm-trusted-firmware-rockchip
+else
+    git clone https://github.com/sbwml/package_boot_uboot-rockchip package/boot/uboot-rockchip -b v2023.04
+    git clone https://github.com/sbwml/arm-trusted-firmware-rockchip package/boot/arm-trusted-firmware-rockchip -b 0419
+fi
 
 # BTF: fix failed to validate module
 # config/Config-kernel.in patch
@@ -96,11 +101,6 @@ if [ "$USE_GLIBC" = "y" ]; then
 else
     curl -s https://$mirror/openwrt/patch/fstools/22-fstools-support-extroot-for-non-MTD-rootfs_data.patch > package/system/fstools/patches/22-fstools-support-extroot-for-non-MTD-rootfs_data.patch
 fi
-
-# QEMU for aarch64
-pushd feeds/packages
-    curl -s https://$mirror/openwrt/patch/qemu/qemu-aarch64_23.05.patch | patch -p1
-popd
 
 # Shortcut Forwarding Engine
 git clone https://$gitea/sbwml/shortcut-fe package/shortcut-fe

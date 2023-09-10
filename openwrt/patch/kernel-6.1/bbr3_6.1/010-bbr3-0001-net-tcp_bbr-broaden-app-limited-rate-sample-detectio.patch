@@ -1,7 +1,7 @@
-From aa79f023f9118d9a9f66d29ef0de456abe69f4e0 Mon Sep 17 00:00:00 2001
+From a388e2d7352dd97d1621c5a84ea9277a651cfd39 Mon Sep 17 00:00:00 2001
 From: Neal Cardwell <ncardwell@google.com>
 Date: Tue, 11 Jun 2019 12:26:55 -0400
-Subject: [PATCH 01/22] net-tcp_bbr: broaden app-limited rate sample detection
+Subject: [PATCH 01/20] net-tcp_bbr: broaden app-limited rate sample detection
 
 This commit is a bug fix for the Linux TCP app-limited
 (application-limited) logic that is used for collecting rate
@@ -30,11 +30,9 @@ Signed-off-by: Alexandre Frade <kernel@xanmod.org>
  net/ipv4/tcp_timer.c | 1 +
  2 files changed, 2 insertions(+)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index e2d3ea2e3..230c3fb9c 100644
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
-@@ -3818,6 +3818,7 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
+@@ -3818,6 +3818,7 @@ static int tcp_ack(struct sock *sk, cons
  
  	prior_fack = tcp_is_sack(tp) ? tcp_highest_sack_seq(tp) : tp->snd_una;
  	rs.prior_in_flight = tcp_packets_in_flight(tp);
@@ -42,11 +40,9 @@ index e2d3ea2e3..230c3fb9c 100644
  
  	/* ts_recent update must be made after we are sure that the packet
  	 * is in window.
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index cf354c29e..7c28eadd6 100644
 --- a/net/ipv4/tcp_timer.c
 +++ b/net/ipv4/tcp_timer.c
-@@ -617,6 +617,7 @@ void tcp_write_timer_handler(struct sock *sk)
+@@ -617,6 +617,7 @@ void tcp_write_timer_handler(struct sock
  		return;
  	}
  
@@ -54,6 +50,3 @@ index cf354c29e..7c28eadd6 100644
  	tcp_mstamp_refresh(tcp_sk(sk));
  	event = icsk->icsk_pending;
  
--- 
-2.39.3
-

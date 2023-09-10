@@ -22,19 +22,24 @@ else
     export mirror=init2.cooluc.com
 fi
 
+# github actions - automatically retrieve `github raw`` links
+if [ "$(whoami)" = "runner" ] && [ -n "$GITHUB_USERNAME" ]; then
+    export mirror=raw.githubusercontent.com/$GITHUB_USERNAME/r4s_build_script/master
+fi
+
 # private gitea
 export gitea=git.cooluc.com
+
+# github mirror
+if [ "$isCN" = "CN" ]; then
+    export github_mirror="https://github.com"
+else
+    export github_mirror="https://github.com"
+fi
 
 # Check root
 if [ "$(id -u)" = "0" ]; then
     echo -e "${RED_COLOR}Building with root user is not supported.${RES}"
-    exit 1
-fi
-
-# Check CPU
-LOW_CPU=$(lscpu | grep "Model name" | grep E5-2673 | wc -l)
-if [ "$BUILD_EXTRA" = "y" ] && [ "$(whoami)" = "runner" ] && [ "$LOW_CPU" -ne "0" ]; then
-    echo -e "\n${RED_COLOR} Unable to use BUILD_EXTRA=y in low performance GitHub Actions. ${RES}\n"
     exit 1
 fi
 
@@ -46,15 +51,6 @@ cores=`expr $(nproc --all) + 1`
 # $CURL_BAR
 if curl --help | grep progress-bar >/dev/null 2>&1; then
     CURL_BAR="--progress-bar";
-fi
-
-# source mirror
-if [ "$isCN" = "CN" ]; then
-    export github_mirror="https://github.com"
-    openwrt_release_mirror="mirror.sjtu.edu.cn/openwrt/releases"
-else
-    export github_mirror="https://github.com"
-    openwrt_release_mirror="downloads.openwrt.org/releases"
 fi
 
 # Source branch
@@ -280,6 +276,8 @@ if [ "$platform" = "x86_64" ]; then
         if [ "$ALL_KMODS" = y ]; then
             cp -a bin/targets/x86/*/packages $kmodpkg_name
             rm -f $kmodpkg_name/Packages*
+            # driver firmware
+            cp -a bin/packages/x86_64/base/*firmware*.ipk $kmodpkg_name/
             bash kmod-sign $kmodpkg_name
             tar zcf x86_64-$kmodpkg_name.tar.gz $kmodpkg_name
             rm -rf $kmodpkg_name
@@ -299,7 +297,6 @@ if [ "$platform" = "x86_64" ]; then
         fi
         exit 0
     else
-        [ "$(whoami)" = "runner" ] && make V=s
         echo -e "\n${RED_COLOR} Build error... ${RES}"
         echo -e " Build time: $(( SEC / 3600 ))h,$(( (SEC % 3600) / 60 ))m,$(( (SEC % 3600) % 60 ))s"
         echo
@@ -339,7 +336,6 @@ else
         fi
         exit 0
     else
-        [ "$(whoami)" = "runner" ] && make V=s
         echo -e "\n${RED_COLOR} Build error... ${RES}"
         echo -e " Build time: ${RED_COLOR}$(( SEC / 3600 ))h,$(( (SEC % 3600) / 60 ))m,$(( (SEC % 3600) % 60 ))s${RES}"
         echo

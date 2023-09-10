@@ -5,6 +5,7 @@
 # Rockchip - target - r4s/r5s
 rm -rf target/linux/rockchip
 git clone https://nanopi:nanopi@$gitea/sbwml/target_linux_rockchip-6.x target/linux/rockchip
+[ "$platform" = "rk3568" ] && sed -i 's/CONFIG_PREEMPT=y/CONFIG_PREEMPT_DYNAMIC=y/g' target/linux/rockchip/armv8/config-6.1
 
 # x86_64 - target
 curl -s https://$mirror/openwrt/patch/openwrt-6.1/x86/64/config-6.1 > target/linux/x86/64/config-6.1
@@ -78,16 +79,14 @@ pushd target/linux/generic/backport-6.1
     curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0013-net-tcp_bbr-v2-inform-CC-module-of-losses-repaired-b.patch
     curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0014-net-tcp_bbr-v2-introduce-is_acking_tlp_retrans_seq-i.patch
     curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0015-tcp-introduce-per-route-feature-RTAX_FEATURE_ECN_LOW.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0016-tcp-Add-a-sysctl-to-skip-tcp-collapse-processing-whe.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0017-tcp-Add-a-sysctl-to-allow-TCP-window-shrinking-in-or.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0018-tcp-add-sysctls-for-TCP-PLB-parameters.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0019-tcp-add-PLB-functionality-for-TCP.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0020-net-tcp_bbr-v3-update-TCP-bbr-congestion-control-mod.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0021-net-tcp_bbr-v3-ensure-ECN-enabled-BBR-flows-set-ECT-.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0022-tcp-export-TCPI_OPT_ECN_LOW-in-tcp_info-tcpi_options.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0016-tcp-add-sysctls-for-TCP-PLB-parameters.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0017-tcp-add-PLB-functionality-for-TCP.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0018-net-tcp_bbr-v3-update-TCP-bbr-congestion-control-mod.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0019-net-tcp_bbr-v3-ensure-ECN-enabled-BBR-flows-set-ECT-.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/bbr3_6.1/010-bbr3-0020-tcp-export-TCPI_OPT_ECN_LOW-in-tcp_info-tcpi_options.patch
 popd
 
-# LRNG v50 - linux-6.1
+# LRNG v51 - linux-6.1
 curl -s https://$mirror/openwrt/patch/kernel-6.1/config-lrng >> target/linux/generic/config-6.1
 if [ "$platform" = "rk3399" ] || [ "$platform" = "rk3568" ]; then
     echo 'CONFIG_LRNG_HWRAND_IF=y' >> target/linux/generic/config-6.1
@@ -95,34 +94,33 @@ else
     echo '# CONFIG_LRNG_HWRAND_IF is not set' >> target/linux/generic/config-6.1
 fi
 pushd target/linux/generic/hack-6.1
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0001-LRNG-Entropy-Source-and-DRNG-Manager.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0002-LRNG-allocate-one-DRNG-instance-per-NUMA-node.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0003-LRNG-proc-interface.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0004-LRNG-add-switchable-DRNG-support.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0005-LRNG-add-common-generic-hash-support.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0006-crypto-DRBG-externalize-DRBG-functions-for-LRNG.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0007-LRNG-add-SP800-90A-DRBG-extension.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0008-LRNG-add-kernel-crypto-API-PRNG-extension.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0009-LRNG-add-atomic-DRNG-implementation.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0010-LRNG-add-common-timer-based-entropy-source-code.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0011-LRNG-add-interrupt-entropy-source.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0012-scheduler-add-entropy-sampling-hook.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0013-LRNG-add-scheduler-based-entropy-source.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0014-LRNG-add-SP800-90B-compliant-health-tests.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0015-LRNG-add-random.c-entropy-source-support.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0016-LRNG-CPU-entropy-source.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0017-LRNG-add-Jitter-RNG-fast-noise-source.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0018-LRNG-add-option-to-enable-runtime-entropy-rate-confi.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0019-LRNG-add-interface-for-gathering-of-raw-entropy.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0020-LRNG-add-power-on-and-runtime-self-tests.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0021-LRNG-sysctls-and-proc-interface.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0022-LRMG-add-drop-in-replacement-random-4-API.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0023-LRNG-add-kernel-crypto-API-interface.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0024-LRNG-add-dev-lrng-device-file-support.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/960-v50-0025-LRNG-add-hwrand-framework-interface.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/961-v50-01-add_arch_get_random_longs_early.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/961-v50-02-revert_add_hwgenerator_randomness_update.patch
-    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v50_6.1/961-v50-03-remove-arch_get_random_seed_longs_early.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0001-LRNG-Entropy-Source-and-DRNG-Manager.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0002-LRNG-allocate-one-DRNG-instance-per-NUMA-node.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0003-LRNG-proc-interface.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0004-LRNG-add-switchable-DRNG-support.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0005-LRNG-add-common-generic-hash-support.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0006-crypto-DRBG-externalize-DRBG-functions-for-LRNG.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0007-LRNG-add-SP800-90A-DRBG-extension.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0008-LRNG-add-kernel-crypto-API-PRNG-extension.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0009-LRNG-add-atomic-DRNG-implementation.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0010-LRNG-add-common-timer-based-entropy-source-code.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0011-LRNG-add-interrupt-entropy-source.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0012-scheduler-add-entropy-sampling-hook.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0013-LRNG-add-scheduler-based-entropy-source.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0014-LRNG-add-SP800-90B-compliant-health-tests.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0015-LRNG-add-random.c-entropy-source-support.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0016-LRNG-CPU-entropy-source.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0017-LRNG-add-Jitter-RNG-fast-noise-source.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0018-LRNG-add-option-to-enable-runtime-entropy-rate-confi.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0019-LRNG-add-interface-for-gathering-of-raw-entropy.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0020-LRNG-add-power-on-and-runtime-self-tests.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0021-LRNG-sysctls-and-proc-interface.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0022-LRMG-add-drop-in-replacement-random-4-API.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0023-LRNG-add-kernel-crypto-API-interface.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0024-LRNG-add-dev-lrng-device-file-support.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/960-v51-0025-LRNG-add-hwrand-framework-interface.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/961-v50-01-add_arch_get_random_longs_early.patch
+    curl -Os https://$mirror/openwrt/patch/kernel-6.1/lrng_v51_6.1/961-v50-02-revert_add_hwgenerator_randomness_update.patch
 popd
 
 # linux-firmware: rtw89 / rtl8723d / rtl8821c firmware
@@ -156,12 +154,12 @@ rm -rf package/kernel/mac80211
 cp -a ../master/openwrt/package/kernel/mac80211 package/kernel/mac80211
 
 # mac80211 - add rtw89
-curl -s https://github.com/openwrt/openwrt/commit/88e6100f21ef179466825c0a4e9e41a270527cbe.patch | patch -p1
-curl -s https://github.com/openwrt/openwrt/commit/06d383fa4f8d297654f3b566a779e7473262d76c.patch | patch -p1
-curl -s https://github.com/openwrt/openwrt/commit/b4e32778056db6342016b25d30e105cfddb3ef6e.patch | patch -p1
-curl -s https://github.com/openwrt/openwrt/commit/7a9758d5a5b9224aa4ecb7288611d42976193e95.patch | patch -p1
-curl -s https://github.com/openwrt/openwrt/commit/2dd03f5a2fe71baa2cb984bf5a17dc3cb13ed2bb.patch | patch -p1
-curl -s https://github.com/openwrt/openwrt/commit/d8a9ab8798388a3b9c9c9b703fee4735d0f18568.patch | patch -p1
+curl -s https://github.com/openwrt/openwrt/commit/11003cfd1a80fc63d354433d2449ee41879c7748.patch | patch -p1
+curl -s https://github.com/openwrt/openwrt/commit/c7323f2dc9449ed38446400535e3212fdf777439.patch | patch -p1
+curl -s https://github.com/openwrt/openwrt/commit/775802f81bdf98ba270583010a34f45b9ecf1ef7.patch | patch -p1
+curl -s https://github.com/openwrt/openwrt/commit/c6a2f99275adeb57226504b5de6f68082aca7c93.patch | patch -p1
+curl -s https://github.com/openwrt/openwrt/commit/390a2ff20f9af9e22a48cd9ebde513d616bea840.patch | patch -p1
+curl -s https://github.com/openwrt/openwrt/commit/1c726bfea3d2f0ffbc90c486e5dffc45020c101e.patch | patch -p1
 
 # kernel patch
 # cpu model
